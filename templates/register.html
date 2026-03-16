@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card">
+        <h2>Create Your Account</h2>
+        <p class="form-subtitle">Join Britball Evolution and start tracking your progress</p>
+        
+        <form method="POST" action="/register">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required placeholder="Choose a username">
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required placeholder="your.email@example.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required placeholder="Create a strong password">
+            </div>
+            
+            <div class="form-group">
+                <label for="position">Position</label>
+                <select id="position" name="position" required>
+                    <option value="">Select your position</option>
+                    <option value="QB">Quarterback (QB)</option>
+                    <option value="RB">Running Back (RB)</option>
+                    <option value="WR">Wide Receiver (WR)</option>
+                    <option value="TE">Tight End (TE)</option>
+                    <option value="OL">Offensive Line (OL)</option>
+                    <option value="DL">Defensive Line (DL)</option>
+                    <option value="LB">Linebacker (LB)</option>
+                    <option value="CB">Cornerback (CB)</option>
+                    <option value="S">Safety (S)</option>
+                    <option value="K">Kicker (K)</option>
+                    <option value="P">Punter (P)</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="role">I am a:</label>
+                <select id="role" name="role" required>
+                    <option value="">Select role</option>
+                    <option value="player">Player</option>
+                    <option value="coach">Coach</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+        </form>
+        
+        <p class="form-footer">Already have an account? <a href="/login">Login here</a></p>
+    </div>
+</div>
+{% endblock %}
