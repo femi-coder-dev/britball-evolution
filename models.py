@@ -24,3 +24,24 @@ class User(UserMixin, db.Model):
     
     def __repr__(self):
         return f'<User {self.username}>'
+    
+class TrainingSession(db.Model):
+    __tablename__ = 'training_sessions'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    session_type = db.Column(db.String(20), nullable=False)  # 'gym' or 'field'
+    date = db.Column(db.Date, nullable=False)
+    notes = db.Column(db.Text, nullable=True)
+    
+    # Performance metrics
+    bodyweight = db.Column(db.Float, nullable=True)
+    bench_press = db.Column(db.Float, nullable=True)
+    squat = db.Column(db.Float, nullable=True)
+    broad_jump = db.Column(db.Float, nullable=True)
+    
+    # Relationship
+    user = db.relationship('User', backref='training_sessions')
+    
+    def __repr__(self):
+        return f'<Session {self.session_type} on {self.date}>'

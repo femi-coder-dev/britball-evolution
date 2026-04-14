@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card">
+        <h2>Log Training Session</h2>
+        <p class="form-subtitle">Track your progress and build your streak</p>
+        
+        <form method="POST" action="/log-session">
+            <div class="form-group">
+                <label for="session_type">Session Type</label>
+                <select id="session_type" name="session_type" required>
+                    <option value="">Select type</option>
+                    <option value="gym">Gym Training</option>
+                    <option value="field">Field Training</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="date">Date</label>
+                <input type="date" id="date" name="date" required value="{{ today }}">
+            </div>
+            
+            <div class="form-group">
+                <label for="notes">Notes (Optional)</label>
+                <textarea id="notes" name="notes" rows="3" placeholder="How did the session go?"></textarea>
+            </div>
+            
+            <h3 style="margin-top: 2rem; margin-bottom: 1rem; color: #667eea;">Performance Metrics (Optional)</h3>
+            
+            <div class="metrics-grid">
+                <div class="form-group">
+                    <label for="bodyweight">Bodyweight (kg)</label>
+                    <input type="number" step="0.1" id="bodyweight" name="bodyweight" placeholder="e.g., 85.5">
+                </div>
+                
+                <div class="form-group">
+                    <label for="bench_press">Bench Press (kg)</label>
+                    <input type="number" step="0.5" id="bench_press" name="bench_press" placeholder="e.g., 100">
+                </div>
+                
+                <div class="form-group">
+                    <label for="squat">Squat (kg)</label>
+                    <input type="number" step="0.5" id="squat" name="squat" placeholder="e.g., 120">
+                </div>
+                
+                <div class="form-group">
+                    <label for="broad_jump">Broad Jump (cm)</label>
+                    <input type="number" step="1" id="broad_jump" name="broad_jump" placeholder="e.g., 250">
+                </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-full">Log Session</button>
+        </form>
+        
+        <p class="form-footer"><a href="/dashboard">Back to Dashboard</a></p>
+    </div>
+</div>
+{% endblock %}

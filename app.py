@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from models import db, User
+from models import db, User, TrainingSession
+from datetime import date, datetime
 import os
 
 app = Flask(__name__)
@@ -84,7 +85,47 @@ def login():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return f"<h1>Welcome {current_user.username}!</h1><p>Dashboard coming soon...</p><a href='/logout'>Logout</a>"
+    return f"<h1>Welcome {current_user.username}!</h1><p>Dashboard coming soon...</p><a href='/log-session'>Log Session</a> | <a href='/logout'>Logout</a>"
+
+@app.route('/log-session', methods=['GET', 'POST'])
+@login_required
+def log_session():
+    if request.method == 'POST':
+        session_type = request.form.get('session_type')
+        session_date_str = request.form.get('date')
+        notes = request.form.get('notes')
+        
+        # Convert string date to date object
+        session_date = datetime.strptime(session_date_str, '%Y-%m-%d').date()
+        
+        # Get optional metrics
+        bodyweight = request.form.get('bodyweight')
+        bench_press = request.form.get('bench_press')
+        squat = request.form.get('squat')
+        broad_jump = request.form.get('broad_jump')
+        
+        # Create new training session
+        new_session = TrainingSession(
+            user_id=current_user.id,
+            session_type=session_type,
+            date=session_date,
+            notes=notes,
+            bodyweight=float(bodyweight) if bodyweight else None,
+            bench_press=float(bench_press) if bench_press else None,
+            squat=float(squat) if squat else None,
+            broad_jump=float(broad_jump) if broad_jump else None
+        )
+        
+        db.session.add(new_session)
+        db.session.commit()
+        
+        print(f"✅ Session logged: {session_type} on {session_date} by {current_user.username}")
+        flash('Session logged successfully! Keep it up! 🔥', 'success')
+        return redirect(url_for('dashboard'))
+    
+    # For GET request, pass today's date to template
+    today = date.today().isoformat()
+    return render_template('log_session.html', today=today)
 
 @app.route('/logout')
 @login_required
