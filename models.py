@@ -22,6 +22,84 @@ class User(UserMixin, db.Model):
         """Check if provided password matches hash"""
         return check_password_hash(self.password_hash, password)
     
+    def calculate_streak(self):
+        """Calculate current training streak"""
+        from datetime import date, timedelta
+        
+        sessions = TrainingSession.query.filter_by(user_id=self.id).order_by(TrainingSession.date.desc()).all()
+        
+        if not sessions:
+            return 0
+        
+        # Check if most recent session is today or yesterday
+        today = date.today()
+        yesterday = today - timedelta(days=1)
+        most_recent = sessions[0].date
+        
+        # If last session is older than yesterday, streak is broken
+        if most_recent < yesterday:
+            return 0
+        
+        # Count consecutive days
+        streak = 0
+        expected_date = today if most_recent == today else yesterday
+        
+        for session in sessions:
+            if session.date == expected_date:
+                streak += 1
+                expected_date = expected_date - timedelta(days=1)
+            elif session.date < expected_date:
+                # Gap found, streak broken
+                break
+        
+        return streak
+    
+    def get_rank(self):
+        """Get rank based on total sessions logged"""
+        total_sessions = TrainingSession.query.filter_by(user_id=self.id).count()
+        
+        if total_sessions >= 365:  # 1 year of training
+            return "Hall of Famer"
+        elif total_sessions >= 180:  # 6 months consistent
+            return "All-Star"
+        elif total_sessions >= 90:   # 3 months solid
+            return "Pro"
+        elif total_sessions >= 30:   # 1 month committed
+            return "Starter"
+        elif total_sessions >= 10:   # Getting started
+            return "Rookie"
+        else:
+            return "Beginner"
+    
+    def get_rank_progress(self):
+        """Get progress to next rank"""
+        total_sessions = TrainingSession.query.filter_by(user_id=self.id).count()
+        
+        ranks = [
+            (10, "Rookie"),
+            (30, "Starter"),
+            (90, "Pro"),
+            (180, "All-Star"),
+            (365, "Hall of Famer")
+        ]
+        
+        for i, (threshold, rank_name) in enumerate(ranks):
+            if total_sessions < threshold:
+                return {
+                    'current_rank': ranks[i-1][1] if i > 0 else "Beginner",
+                    'next_rank': rank_name,
+                    'sessions_needed': threshold - total_sessions,
+                    'total_sessions': total_sessions
+                }
+        
+        # Max rank achieved
+        return {
+            'current_rank': "Hall of Famer",
+            'next_rank': None,
+            'sessions_needed': 0,
+            'total_sessions': total_sessions
+        }
+    
     def __repr__(self):
         return f'<User {self.username}>'
     

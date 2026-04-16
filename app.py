@@ -85,7 +85,22 @@ def login():
 @app.route('/dashboard')
 @login_required
 def dashboard():
-    return f"<h1>Welcome {current_user.username}!</h1><p>Dashboard coming soon...</p><a href='/log-session'>Log Session</a> | <a href='/logout'>Logout</a>"
+    # Calculate streak and rank
+    streak = current_user.calculate_streak()
+    rank = current_user.get_rank()
+    rank_progress = current_user.get_rank_progress()
+    
+    # Get recent sessions (last 10)
+    recent_sessions = TrainingSession.query.filter_by(user_id=current_user.id)\
+        .order_by(TrainingSession.date.desc())\
+        .limit(10)\
+        .all()
+    
+    return render_template('dashboard.html', 
+                         streak=streak,
+                         rank=rank,
+                         rank_progress=rank_progress,
+                         recent_sessions=recent_sessions)
 
 @app.route('/log-session', methods=['GET', 'POST'])
 @login_required
