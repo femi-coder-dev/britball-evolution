@@ -14,13 +14,26 @@
                 <li><a href="/">Home</a></li>
                 <li><a href="/register">Register</a></li>
                 <li><a href="/login">Login</a></li>
+                {% if current_user.is_authenticated and current_user.role == 'player' %}
+                    <li><a href="/progress">Progress</a></li>
+                {% endif %}
             </ul>
         </div>
     </nav>
     
     <main class="container">
-        {% block content %}{% endblock %}
-    </main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
+    {% block content %}{% endblock %}
+</main>
     
     <footer>
         <p>&copy; 2026 Britball Evolution - Track Your Progress</p>

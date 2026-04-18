@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="progress-page">
+    <h2>My Progress</h2>
+    <p class="subtitle">Track your performance metrics over time</p>
+
+    {% if not bodyweight_data and not bench_data and not squat_data and not broad_jump_data %}
+        <div class="empty-state">
+            <p>No metric data yet. Start logging sessions with metrics to see your progress here.</p>
+            <a href="/log-session" class="btn">Log a Session</a>
+        </div>
+    {% else %}
+
+        <div class="chart-grid">
+            <div class="chart-card">
+                <h3>Bodyweight (kg)</h3>
+                <canvas id="bwChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Bench Press (kg)</h3>
+                <canvas id="benchChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Squat (kg)</h3>
+                <canvas id="squatChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Broad Jump (cm)</h3>
+                <canvas id="jumpChart"></canvas>
+            </div>
+        </div>
+
+    {% endif %}
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+    const chartDefaults = {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            x: { ticks: { color: '#aaa' }, grid: { color: '#333' } },
+            y: { ticks: { color: '#aaa' }, grid: { color: '#333' } }
+        }
+    };
+
+    function makeChart(id, data, color) {
+        if (!data.length) return;
+        new Chart(document.getElementById(id), {
+            type: 'line',
+            data: {
+                labels: data.map(d => d.x),
+                datasets: [{
+                    data: data.map(d => d.y),
+                    borderColor: color,
+                    backgroundColor: color + '22',
+                    tension: 0.3,
+                    fill: true,
+                    pointRadius: 5,
+                    pointHoverRadius: 7
+                }]
+            },
+            options: chartDefaults
+        });
+    }
+
+    makeChart('bwChart',    {{ bodyweight_data | tojson }}, '#60a5fa');
+    makeChart('benchChart', {{ bench_data | tojson }},      '#4ade80');
+    makeChart('squatChart', {{ squat_data | tojson }},      '#f97316');
+    makeChart('jumpChart',  {{ broad_jump_data | tojson }}, '#a78bfa');
+</script>
+{% endblock %}

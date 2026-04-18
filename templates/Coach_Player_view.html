@@ -3,8 +3,12 @@
 {% block content %}
 <div class="dashboard-container">
     <div class="dashboard-header">
-        <h1>Welcome back, {{ current_user.username }}! 👋</h1>
-        <p class="subtitle">{{ current_user.position or 'Player' }} | {{ current_user.role.title() }}</p>
+        <h1>{{ player.username }}'s Progress</h1>
+        <p class="subtitle">{{ player.position or 'N/A' }} | Player</p>
+    </div>
+    
+    <div class="action-buttons" style="margin-bottom: 2rem;">
+        <a href="/coach/dashboard" class="btn btn-secondary">← Back to Players</a>
     </div>
     
     <div class="stats-grid">
@@ -13,7 +17,7 @@
             <div class="stat-content">
                 <h3>Current Streak</h3>
                 <p class="stat-number">{{ streak }} days</p>
-                <p class="stat-label">Keep it going!</p>
+                <p class="stat-label">{% if streak > 0 %}On fire!{% else %}Needs motivation{% endif %}</p>
             </div>
         </div>
         
@@ -23,9 +27,9 @@
                 <h3>Rank</h3>
                 <p class="stat-number">{{ rank }}</p>
                 {% if rank_progress.next_rank %}
-                <p class="stat-label">{{ rank_progress.sessions_needed }} sessions to {{ rank_progress.next_rank }}</p>
+                <p class="stat-label">{{ rank_progress.sessions_needed }} to {{ rank_progress.next_rank }}</p>
                 {% else %}
-                <p class="stat-label">Max rank achieved!</p>
+                <p class="stat-label">Max rank!</p>
                 {% endif %}
             </div>
         </div>
@@ -38,24 +42,10 @@
                 <p class="stat-label">Logged workouts</p>
             </div>
         </div>
-        
-        <div class="stat-card access-card">
-            <div class="stat-icon">🔑</div>
-            <div class="stat-content">
-                <h3>Coach Access Code</h3>
-                <p class="stat-number" style="font-size: 2rem; letter-spacing: 3px;">{{ access_code }}</p>
-                <p class="stat-label">Share this with your coach</p>
-            </div>
-        </div>
-    </div>
-    
-    <div class="action-buttons">
-        <a href="/log-session" class="btn btn-primary">📝 Log New Session</a>
-        <a href="/logout" class="btn btn-secondary">Logout</a>
     </div>
     
     <div class="recent-sessions">
-        <h2>Recent Sessions</h2>
+        <h2>Training History</h2>
         {% if recent_sessions %}
         <table class="sessions-table">
             <thead>
@@ -89,7 +79,7 @@
             </tbody>
         </table>
         {% else %}
-        <p class="empty-state">No sessions logged yet. <a href="/log-session">Log your first session!</a></p>
+        <p class="empty-state">No training sessions logged yet.</p>
         {% endif %}
     </div>
 </div>

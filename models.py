@@ -13,6 +13,7 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(255), nullable=False)
     position = db.Column(db.String(20), nullable=True)
     role = db.Column(db.String(20), nullable=False)  # 'player' or 'coach'
+    access_code = db.Column(db.String(10), unique=True, nullable=True)  # For players
     
     def set_password(self, password):
         """Hash and store password"""
@@ -100,9 +101,39 @@ class User(UserMixin, db.Model):
             'total_sessions': total_sessions
         }
     
+    def generate_access_code(self):
+        """Generate a unique 6-character access code for players"""
+        import random
+        import string
+        
+        if self.role != 'player':
+            return None
+        
+        # Generate random 6-character code
+        while True:
+            code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
+            # Check if code already exists
+            existing = User.query.filter_by(access_code=code).first()
+            if not existing:
+                return code
+    
+    def get_or_create_access_code(self):
+        """Get existing access code or create new one"""
+        if self.role != 'player':
+            return None
+        
+        if self.access_code:
+            return self.access_code
+        
+        # Generate and save new code
+        self.access_code = self.generate_access_code()
+        db.session.commit()
+        return self.access_code
+    
     def __repr__(self):
         return f'<User {self.username}>'
-    
+
+
 class TrainingSession(db.Model):
     __tablename__ = 'training_sessions'
     
@@ -123,3 +154,22 @@ class TrainingSession(db.Model):
     
     def __repr__(self):
         return f'<Session {self.session_type} on {self.date}>'
+
+
+class CoachPlayerAccess(db.Model):
+    __tablename__ = 'coach_player_access'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    coach_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    player_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    granted_at = db.Column(db.DateTime, default=db.func.current_timestamp())
+    
+    # Relationships
+    coach = db.relationship('User', foreign_keys=[coach_id], backref='my_players')
+    player = db.relationship('User', foreign_keys=[player_id], backref='my_coaches')
+    
+    # Unique constraint: one coach-player pair
+    __table_args__ = (db.UniqueConstraint('coach_id', 'player_id', name='unique_coach_player'),)
+    
+    def __repr__(self):
+        return f'<CoachAccess Coach:{self.coach_id} Player:{self.player_id}>'
